@@ -10,7 +10,7 @@
 pip install requirements.txt
 
 ```
-- Lancer `main.py` après avoir choisit son modèle.
+- Lancer `main.py` après avoir choisi son modèle.
 - Lancer jupyter pour les notebooks :
     - PART1_Exploratory_data_analysis: Cette partie nous permet d'extraire les variables importantes, identifier les valeurs aberrantes et manquantes et ainsi nettoyer l'ensemble de nos données. Maximiser nos informations sur la colonne `URL` et mieux comprendre sa relation avec les  autres variables.
       - PART2_Exploratory_data_analysis: Cette partie est la suite de la partie une et effectue une analyse exploratoire sur la variable `jour`.
