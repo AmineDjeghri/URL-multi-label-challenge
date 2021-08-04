@@ -1,5 +1,6 @@
 import pandas as pd
 from pathlib import Path
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import MultiLabelBinarizer
@@ -16,10 +17,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.stem.snowball import SnowballStemmer
 from unidecode import unidecode
 from nltk.corpus import stopwords
-from wordcloud import WordCloud, STOPWORDS
-from sklearn.compose import ColumnTransformer
-import fastparquet
 import utils
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import OneHotEncoder
 
 
 class Preprocess:
@@ -168,3 +170,43 @@ class PathTokenizer():
         for func in funcs_list:
             df_column = df_column.apply(func)
         return df_column
+
+
+def split_data(dataframe, test_size, categorical_features=None):
+
+    # TO DO: add automated drop for the categories that are in categorical_features
+
+    if categorical_features is None:
+        categorical_features = ["day", "domaine", "top_domaine"]
+
+    x = dataframe.iloc[:, : 6]
+    y = dataframe.iloc[:, 6:]
+
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size)
+
+    print(X_train.shape)
+    print(X_test.shape)
+
+    categorical_features = ["day", "domaine", "top_domaine"]
+
+    tfidf = TfidfVectorizer(min_df=0)
+    vectorizer = TfidfVectorizer(min_df=0.00009, smooth_idf=True, norm="l2", tokenizer=lambda x: x.split(" "),
+                                 sublinear_tf=False, ngram_range=(1, 1))
+
+    transformer = ColumnTransformer(
+        [('categorical', OneHotEncoder(sparse=False, handle_unknown="ignore"), categorical_features),
+         ("vectorizer", vectorizer, "tokens_path"),
+         ], remainder="passthrough")
+
+    target_train = X_train['target']
+    target_test = X_test['target']
+
+    X_train = X_train.drop(['sous_domaine', 'target'], axis=1)
+    print(X_train.columns)
+    X_train = transformer.fit_transform(X_train)
+
+    X_test = X_test.drop(['sous_domaine', 'target'], axis=1)
+    print(X_test.columns)
+    X_test = transformer.transform(X_test)
+
+    return X_train, X_test, y_train, y_test, target_train, target_test
