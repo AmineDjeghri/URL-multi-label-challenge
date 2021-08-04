@@ -1,0 +1,148 @@
+import pandas as pd
+from pathlib import Path
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import MultiLabelBinarizer
+import numpy as np
+import spacy
+from urllib.parse import urlparse
+import re
+import regex
+import nltk
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
+# nltk.download('stopwords')
+from nltk.stem.snowball import SnowballStemmer
+from unidecode import unidecode
+from nltk.corpus import stopwords
+from wordcloud import WordCloud, STOPWORDS
+from sklearn.compose import ColumnTransformer
+import fastparquet
+import utils
+
+
+class Preprocess:
+    def __init__(self):
+        self.df = []
+
+    def create_dataframe(self, parquet_data_path, preprocess=True):
+        data = Path(parquet_data_path).glob("*.parquet")
+        data = list(data)
+        [print(parquet.name) for parquet in data]
+
+        self.df = pd.concat((pd.read_parquet(parquet, engine='fastparquet') for parquet in data))
+        self.df = self.df.reset_index(drop=True)
+
+        if preprocess:
+            self.df = self.preprocess_dataframe()
+
+
+        return self.df
+
+    def save_dataframe(self, dataframe, file_name):
+        dataframe.to_csv(file_name)
+
+    def load_dataframe(self, file_name):
+        self.df = pd.read_csv(file_name)
+        return self.df
+
+    def parse_df_url(self, df, drop_columns=None):
+        if drop_columns is None:
+            drop_columns = ['params', 'quer', 'fragment']
+
+        columns = ['scheme', 'netloc', 'path', 'params', 'quer', 'fragment']
+        df_parsed = pd.concat([df,
+                               pd.DataFrame(list(map(utils.url_parse, df.url)),
+                                            columns=columns,
+                                            index=df.url.index)
+                               ], axis=1)
+        df_parsed.drop(drop_columns, axis=1, inplace=True)
+        return df_parsed
+
+    def split_netloc(self, df_parsed):
+        df_parsed_2 = pd.concat([df_parsed,
+                                 pd.DataFrame(list(map(utils.split_netloc, df_parsed.netloc)),
+                                              columns=['sous_domaine', 'domaine', 'top_domaine'],
+                                              index=df_parsed.netloc.index)
+                                 ], axis=1)
+        return df_parsed_2
+
+    def preprocess_dataframe(self, df):
+        df = self.parse_df_url(df)
+        df = self.split_netloc(df)
+
+        return df
+
+
+
+class PathTokenizer():
+    """ A simple class to tokenize the URL with a various combination of functions
+        """
+
+    def __init__(self):
+        self.stemmer = SnowballStemmer(language='french')
+        self.stopwords = [unidecode(x) for x in stopwords.words('french')]
+        self.special_words = ['htm', 'php', 'aspx', 'html']
+
+    def _clean_text(self, text: str):
+        """
+        remove the symbols from  a url
+        """
+        if isinstance(text, str):
+            regex = '(\d+|[A-Z][a-z]*)|[+;,\s.!:\'/_%#&$@?~*]|-'
+            t = list(filter(None, re.split(regex, text)))
+            return t
+        else:
+            raise TypeError("text must be list")
+
+    def _lowercase_text(self, tokens: list):
+        if isinstance(tokens, list):
+            return [t.lower() for t in tokens]
+        else:
+            raise TypeError("text must be list")
+
+    def _remove_stopwords(self, tokens: list):
+        if isinstance(tokens, list):
+            return [t for t in tokens if t not in self.stopwords]
+        else:
+            raise TypeError("tokens must be a list")
+
+    def _remove_single(self, tokens: list):
+        "remove single elements from list "
+        if isinstance(tokens, list):
+            return [t for t in tokens if len(t) > 1]
+        else:
+            raise TypeError("tokens must be a list")
+
+    def _remove_specials(self, tokens: list):
+        if isinstance(tokens, list):
+            return [t for t in tokens if t not in self.special_words]
+        else:
+            raise TypeError("tokens must be a list")
+
+    def _remove_numbers(self, tokens: list):
+        if isinstance(tokens, list):
+            # return [x for x in text if not any(x1.isdigit() for x1 in x)]
+            return [t for t in tokens if not t.isdigit()]
+        else:
+            raise TypeError("tokens must be a list")
+
+    def _stem_text(self, tokens: list):
+        if isinstance(tokens, list):
+            return [self.stemmer.stem(token) for token in tokens]
+        else:
+            raise TypeError("tokens must be a list")
+
+    def _join_words(self, text: list):
+        """ build a sentence from a list of words and separates them with a sapce"""
+        return " ".join(text)
+
+    def _split_words(self, text: str):
+        return text.split(' ')
+
+    def clean_df(self, df_column, funcs_list):
+        """Apply multiple functions on a column of a dataframe"""
+        for func in funcs_list:
+            df_column = df_column.apply(func)
+        return df_column
