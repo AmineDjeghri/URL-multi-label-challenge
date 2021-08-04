@@ -91,9 +91,9 @@ class Preprocess:
 
         df_cleaned = df_parsed_2.drop(['url', 'path', 'scheme', 'netloc'], axis=1)
 
-        mlb = MultiLabelBinarizer()
-        targets_encoded = pd.DataFrame(mlb.fit_transform(df_cleaned.target),
-                                       columns=mlb.classes_,
+        self.mlb = MultiLabelBinarizer()
+        targets_encoded = pd.DataFrame(self.mlb.fit_transform(df_cleaned.target),
+                                       columns=self.mlb.classes_,
                                        index=df_cleaned.target.index)
         df_cleaned_2 = pd.concat([df_cleaned, targets_encoded], axis=1)
         df_cleaned_2["tokens_path"] = df_cleaned_2.tokens_path.apply(path_tokenizer._join_words)
@@ -182,7 +182,7 @@ def split_data(dataframe, test_size, categorical_features=None):
     x = dataframe.iloc[:, : 6]
     y = dataframe.iloc[:, 6:]
 
-    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size)
+    X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
 
     print(X_train.shape)
     print(X_test.shape)
