@@ -7,12 +7,16 @@ def url_parse(url):
               parse_result.fragment]
     return result
 
-def split_netloc(netloc:str):
+
+def split_netloc(netloc: str):
     splited_netloc = netloc.rsplit('.', 2)
     if len(splited_netloc) == 2:
         splited_netloc.insert(0, "www")
     return splited_netloc
 
 
-
-
+def list_string_to_int(liste):
+    try:
+        return [int(x) for x in liste]
+    except:
+        print(liste)

@@ -35,16 +35,16 @@ class Preprocess:
         self.df = self.df.reset_index(drop=True)
 
         if preprocess:
-            self.df = self.preprocess_dataframe()
-
+            self.df = self.preprocess_dataframe(self.df)
 
         return self.df
 
-    def save_dataframe(self, dataframe, file_name):
-        dataframe.to_csv(file_name)
+    def save_dataframe(self, dataframe, file_name="df.csv"):
+        dataframe.to_csv(file_name, index=False)
 
     def load_dataframe(self, file_name):
         self.df = pd.read_csv(file_name)
+        self.df = self.df.reset_index(drop=True)
         return self.df
 
     def parse_df_url(self, df, drop_columns=None):
@@ -68,12 +68,34 @@ class Preprocess:
                                  ], axis=1)
         return df_parsed_2
 
-    def preprocess_dataframe(self, df):
+    def preprocess_dataframe(self, df, funcs=None):
+        """default pipeline of preprocessing"""
+        path_tokenizer = PathTokenizer()
+        if funcs is None:
+            funcs = [path_tokenizer._clean_text, path_tokenizer._remove_numbers, path_tokenizer._remove_single,
+                     path_tokenizer._stem_text,
+                     path_tokenizer._lowercase_text, path_tokenizer._remove_specials, path_tokenizer._remove_stopwords]
         df = self.parse_df_url(df)
         df = self.split_netloc(df)
 
-        return df
+        path_tokenizer = PathTokenizer()
 
+        funcs = [path_tokenizer._clean_text, path_tokenizer._remove_numbers, path_tokenizer._remove_single,
+                 path_tokenizer._stem_text,
+                 path_tokenizer._lowercase_text, path_tokenizer._remove_specials, path_tokenizer._remove_stopwords]
+
+        df_parsed_2 = df
+        df_parsed_2['tokens_path'] = path_tokenizer.clean_df(df_parsed_2.path, funcs)
+
+        df_cleaned = df_parsed_2.drop(['url', 'path', 'scheme', 'netloc'], axis=1)
+
+        mlb = MultiLabelBinarizer()
+        targets_encoded = pd.DataFrame(mlb.fit_transform(df_cleaned.target),
+                                       columns=mlb.classes_,
+                                       index=df_cleaned.target.index)
+        df_cleaned_2 = pd.concat([df_cleaned, targets_encoded], axis=1)
+        df_cleaned_2["tokens_path"] = df_cleaned_2.tokens_path.apply(path_tokenizer._join_words)
+        return df_cleaned_2
 
 
 class PathTokenizer():
