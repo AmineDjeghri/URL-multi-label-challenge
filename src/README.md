@@ -14,9 +14,12 @@ Ou en utilisant docker:
 ``docker load -i <path to url_labelizer docker image tar file>``
 - Le lien de l'image: https://drive.google.com/file/d/1hn20fTy9stL-hYdgItzW6G50sdUZmV8g/view?usp=sharing
 
-- Lancer `main.py` après avoir choisi son modèle.
 - Lancer jupyter pour les notebooks :
     - PART1_Exploratory_data_analysis: Cette partie nous permet d'extraire les variables importantes, identifier les valeurs aberrantes et manquantes et ainsi nettoyer l'ensemble de nos données. Maximiser nos informations sur la colonne `URL` et mieux comprendre sa relation avec les  autres variables.
+
+- Les notebooks 1 et 2 contiennent l'analyse exploratoire de nos données.
+- Les notebooks 3 et 4 utilisent les fichiers sources `utils.py` et `preprocessing.py` qui contiennent des fonctions et classes.
+
       - PART2_Exploratory_data_analysis: Cette partie est la suite de la partie une et effectue une analyse exploratoire sur la variable `jour`.
     -  PART 3 et PART 4 et PART 5: entrainements des modèles  
 
