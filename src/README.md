@@ -16,12 +16,13 @@ Ou en utilisant docker:
 
 - Lancer jupyter pour les notebooks :
     - PART1_Exploratory_data_analysis: Cette partie nous permet d'extraire les variables importantes, identifier les valeurs aberrantes et manquantes et ainsi nettoyer l'ensemble de nos données. Maximiser nos informations sur la colonne `URL` et mieux comprendre sa relation avec les  autres variables.
-
-- Les notebooks 1 et 2 contiennent l'analyse exploratoire de nos données.
-- Les notebooks 3 et 4 utilisent les fichiers sources `utils.py` et `preprocessing.py` qui contiennent des fonctions et classes.
-
-      - PART2_Exploratory_data_analysis: Cette partie est la suite de la partie une et effectue une analyse exploratoire sur la variable `jour`.
-    -  PART 3 et PART 4 et PART 5: entrainements des modèles  
+Le répertoire `src` contient:
+- Les notebooks 1 et 2 traitent la partie l'analyse exploratoire des données.
+- Les notebooks 3 et 4 traitent l'entrainement des modèles, il utilisent les fichiers sources `utils.py` et `preprocessing.py` qui contiennent des fonctions et classes.
+- utils.py: contient différentes fonctions utiles lors de preprocessing ou l'entrainement de nos modèles.
+- preprocessing.py: contient les classes et fonctions requises pour le prétraitement de nos données
+- main.py : sert juste à tester
+ 
 
 ## Récapitulatif du travail effectué :
 
