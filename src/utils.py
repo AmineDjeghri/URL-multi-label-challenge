@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 from sklearn import metrics
 from sklearn.metrics import precision_score, recall_score, f1_score
-
 import numpy as np
 
 
@@ -25,6 +24,7 @@ def list_string_to_int(liste):
     except:
         print(liste)
 
+        
 def display_score(y_test, predictions):
 
     # print("Accuracy :",metrics.accuracy_score(y_test, predictions))
@@ -55,3 +55,8 @@ def reconstruct_targets(y_sparse, mlb):
 
     print (metrics.classification_report(y_test, predictions))
 
+    
+def inverse_pca(matrix, pca):
+    matrix = pca.inverse_transform(matrix)
+    print(matrix.shape)
+    return [[0 if j<0.5 else 1 for j in i ]for i in matrix]

@@ -10,6 +10,10 @@
 pip install requirements.txt
 
 ```
+Ou en utilisant docker:
+``docker load -i <path to url_labelizer docker image tar file>``
+- Le lien de l'image: https://drive.google.com/file/d/1hn20fTy9stL-hYdgItzW6G50sdUZmV8g/view?usp=sharing
+
 - Lancer `main.py` après avoir choisi son modèle.
 - Lancer jupyter pour les notebooks :
     - PART1_Exploratory_data_analysis: Cette partie nous permet d'extraire les variables importantes, identifier les valeurs aberrantes et manquantes et ainsi nettoyer l'ensemble de nos données. Maximiser nos informations sur la colonne `URL` et mieux comprendre sa relation avec les  autres variables.
@@ -160,3 +164,14 @@ Le problème est décomposé en un problème de classification binaire multiple.
   
 #### Multi-Label Binary Relevance :
 Transforme un problème de classification multi-étiquettes avec L étiquettes en L problèmes de classification binaire séparés à une seule étiquette en utilisant le même classificateur de base fourni dans le constructeur. La sortie de prédiction est l'union de tous les classifieurs par étiquette. S'en suit ensuite l'apprentissage d'un modèle multinomial naive bayes.
+
+| Model                | Vectorizer              | features                     | Feature Engineering                             | Label preprocessing                | F1 test Score weighted |
+|----------------------|-------------------------|------------------------------|-------------------------------------------------|------------------------------------|------------------------|
+| OneVsRest            | - path:TF-IDF 1 grams   | day, path domain, top_domain | - Devided the url into:path, domain, sub_domain | OneHotEncoding                     |                        |
+| Binary Relevance     |                         |                              |                                                 | OneHot                             |                        |
+| Classifier Chains    |                         |                              |                                                 | OneHot                             |                        |
+| MultiOutputRegressor |                         |                              |                                                 | -SVD (ncomps=350) - SVD(ncomps=70) | 0.43 0.31              |
+| MultiOutputRegressor |                         |                              |                                                 | PCA (n=300=                        | 0.41                   |
+| ChainedMulti         |                         |                              |                                                 | SVD (ncomps=70)                    | 0.31                   |
+| ChainedMulti         |                         |                              |                                                 |                                    |                        |
+|                      |                         |                              |                                                 |                                    |                        |
