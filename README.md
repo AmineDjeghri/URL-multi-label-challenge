@@ -172,8 +172,8 @@ Transforme un problème de classification multi-étiquettes avec L étiquettes e
 | Model                | Vectorizer              | features                     | Feature Engineering                             | Label preprocessing                | F1 test Score weighted |
 |----------------------|-------------------------|------------------------------|-------------------------------------------------|------------------------------------|------------------------|
 | OneVsRest            | - path:TF-IDF 1 grams   | day, path domain, top_domain | - Devided the url into:path, domain, sub_domain | OneHotEncoding                     | 0.37                       |
-| Binary Relevance     |                         |                              |                                                 | OneHot                             |                        |
-| Classifier Chains    |                         |                              |                                                 | OneHot                             |                        |
+| Binary Relevance     |                         |                              |                                                 | OneHot                             | NA                       |
+| Classifier Chains    |                         |                              |                                                 | OneHot                             |  NA                      |
 | MultiOutputRegressor |                         |                              |                                                 | -SVD (ncomps=350) - SVD(ncomps=70) | 0.43 0.31              |
 | MultiOutputRegressor |                         |                              |                                                 | PCA (n=300=                        | 0.41                   |
 | ChainedMulti         |                         |                              |                                                 | SVD (ncomps=70)                    | 0.31                   |
